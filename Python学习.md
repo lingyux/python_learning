@@ -3300,6 +3300,8 @@ if __name__ == '__main__':
 
 ```
 
+------
+
 ## Python文件操作
 
 ### 文件关闭与打开
@@ -3647,3 +3649,135 @@ print('参数列表：', str(sys.argv[1:]))
 #### argparse
 
 可以轻松编写用户友好的命令行界面
+
+------
+
+## 正则表达式
+
+### 概述
+
+### re模块
+
+#### re.match()
+
+尝试从字符串的起始位置匹配一个规则，匹配成功就返回**match**对象，否则返回**None**。可以使用**group()**获取匹配成功的字符串
+
+- 语法：`re.match(pattern,string,flags=0)`
+
+- 参数说明
+
+  | 参数    | 描述                                                         |
+  | ------- | ------------------------------------------------------------ |
+  | pattern | 匹配的正则表达式                                             |
+  | string  | 要匹配的字符串                                               |
+  | flags   | 标志位，用于控制正则表达式的匹配方式，如：是否区分大小写，多行匹配等 |
+
+- 查找以pattern开头的字符串
+
+- **flags**可选的标志位
+
+  | 修饰符   | 描述                                                         |
+  | -------- | ------------------------------------------------------------ |
+  | **re.I** | 使匹配对大小写不敏感                                         |
+  | **re.L** | 做本地化识别(locale-aware)匹配                               |
+  | **re.M** | 多行匹配，影响**^**和**$**                                   |
+  | **re.U** | 根据**Unicode**字符集解析字符。这个标志 影响**\w,\W,\b,\B**  |
+  | **re.X** | 该标志通过给予你更灵活的格式以便你将正则表达式写的更易于理解 |
+
+- ```python
+  # 通过python中的re模块学习使用正则表达式的基本知识点
+  import re
+  
+  data = 'Python is the best language in the world'
+  res = re.match('p', data, re.I)  # 精确匹配 re.I表示忽略大小写
+  if res:
+      print('匹配成功')
+      print(res)
+      print(res.group())
+      pass
+  else:
+      print(res)
+      print('匹配失败')
+  
+  ```
+
+- 已使用**group(num)**和**group()**匹配对象来获取匹配表达式
+
+  | 匹配对象方法   | 描述                                                         |
+  | -------------- | ------------------------------------------------------------ |
+  | **gruop(num)** | 匹配的整个表达式的字符串，**group()**可以一次性输入多个组号，在这种情况下他讲返回一个包含那些组所对应值的元组，此时我们可以通过下标获取相应的结果 |
+  | **groups()**   | 返回一个包含所有小组字符串的元组，从1到所含的小组号          |
+
+- | 符号        | 匹配规则                              |
+  | ----------- | ------------------------------------- |
+  | **.（点）** | 匹配任意1个字符，除了换行符\n  <br /> |
+  | **[abc ]**  | 匹配abc中的任意一个字符               |
+  | **\d**      | 匹配一个数字，即0-9                   |
+  | **\D**      | 匹配非数字，即不是数字                |
+  | **\s**      | 匹配空白，即空格，tab键               |
+  | **\S**      | 匹配非空白，除空格，tab键之类的       |
+  | **\w**      | 匹配单词字符，即a-z、A-Z、0-9、_      |
+  | **\W**      | 匹配非单词字符                        |
+
+  ```python
+  #.的使用
+  import re
+  
+  data = 'aaaa'
+  names = '李达', '李明', '小王', '小李'
+  print(type(names))
+  pattern = '李.'  # 匹配的规则
+  # pattern = '..'  # 匹配除了换行符之外的所有字符
+  for name in names:
+      res = re.match(pattern, name)
+      if res:
+          print(res.group())
+          pass
+  ```
+
+  ```python
+  # []的使用 规则：匹配[]中的任意一个字符
+  str1 = 'hello'
+  # res = re.match('[he]', str1, re.I)
+  # print(res.group())
+  # parrern = '[abc]'  # 使用[]括起来的字符代表一个集合，代表匹配集合中的任意一个字符
+  parrern = '[a-z]'  # 简写a-z的26个英文字母
+  datas = 'a', 'b', 'c', 'd', 'wyw'
+  for data in datas:
+      res = re.match(parrern, data)
+      if res:
+          print('匹配成功{}'.format(res.group()))
+  ```
+
+  ```python
+  # \d 匹配一个数字
+  data = '12345abcdef'
+  print(re.match('\d \d', data).group())
+  # \D 匹配非数字
+  data = 'd12345abcdef'
+  print(re.match('\D', data).group())
+  ```
+
+  ```python
+  # \s 匹配空白字符或者tab
+  data = ' hello'
+  print(re.match('\s', data).group())
+  # \S 匹配非空白的字符
+  data = '1 hello'
+  print(re.match('\S', data).group())
+  ```
+
+  ```python
+  # \w 匹配单词字符，即a-z,A-Z,0-9,_
+  data = '2Yssdf'
+  print(re.match('\w\w', data).group())
+  # \W 匹配非单词的字符
+  data = '@#$2Yssdf'
+  print(re.match('\W\W', data).group())
+  ```
+
+  
+
+
+
+### 贪婪模式与非贪婪模式
