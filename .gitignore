@@ -1,0 +1,9 @@
+Debug/
+/temp
+/.vscode
+*.exe
+*.out
+*.txt
+/07飞机大战/feiji
+/*/.idea
+/*/venv
