@@ -3708,6 +3708,8 @@ print('参数列表：', str(sys.argv[1:]))
   | **gruop(num)** | 匹配的整个表达式的字符串，**group()**可以一次性输入多个组号，在这种情况下他讲返回一个包含那些组所对应值的元组，此时我们可以通过下标获取相应的结果 |
   | **groups()**   | 返回一个包含所有小组字符串的元组，从1到所含的小组号          |
 
+#### 正则语法
+
 - | 符号        | 匹配规则                              |
   | ----------- | ------------------------------------- |
   | **.（点）** | 匹配任意1个字符，除了换行符\n  <br /> |
@@ -3776,8 +3778,304 @@ print('参数列表：', str(sys.argv[1:]))
   print(re.match('\W\W', data).group())
   ```
 
+
+- 常用的匹配规则-匹配字符数量
+
+  | 符号  | 匹配规则                                            |
+  | ----- | --------------------------------------------------- |
+  | *     | 匹配**前一个字符**出现0次或者无限次，即可有可无     |
+  | +     | 匹配前一个字符出现1次或者无限次，即至少有1次        |
+  | \?    | 匹配前一个字符出现1次或者0次，即要么有1次，要么没有 |
+  | {m}   | 匹配前一个字符出现m次                               |
+  | {m,}  | 匹配前一个字符至少出现m次                           |
+  | {n,m} | 匹配前一个字符出现从n到m次                          |
+
+```python
+# *  匹配前一个字符出现0次或者无限次，即可有可无
+import re
+
+# res=re.match('[A-Z][A_Z]*','My') 匹配0次
+# res = re.match('[A-Z][a-z]*', 'Mny')#匹配两次
+res = re.match('[A-Z][a-z]*', 'Anyeverydayishappy')  # 可以匹配无限次
+print(res.group())
+```
+
+```python
+# + 匹配前一个字符出现1次或者无限次,至少匹配一次
+res = re.match('[a-zA-Z]+', 'mYnameislingyux')
+# 匹配复合规范[不能以数字开头只能包含字母和下划线]的python变量名
+res = re.match('[a-zA-Z_]+[\w]*', 'name')
+res = re.match('[a-zA-Z_]+[\w]*', '_na99me')
+res = re.match('[a-zA-Z_]+[\w]*', '_na99me')
+print(res.group())
+```
+
+
+
+```python
+# ? 告诉匹配引擎匹配前导字符0次或者一次，事实上表示前导字符是可以选择的可以有也可以没有
+res = re.match('[a-zA-Z_]+[0-9]?', 'na99me')
+print(res.group())
+```
+
+
+
+```python
+# {min,max} 告诉匹配引擎匹配前导字符min次到max次，min和max必须为非负整数
+# {count} 表示精确匹配count位数字
+# {min,} max省略的话表示最大值没有限制
+# res=re.match('\d{4,}','1234567890')
+res = re.match('\d{4,8}', '1234567890')
+if res:
+    print('匹配成功 {}'.format(res.group()))
+    pass
+else:
+    print('匹配失败')
+    pass
+
+```
+
+
+
+```python
+#  匹配邮箱和手机号
+regexMail = re.match('[a-zA-Z0-9]{6,11}@163.com', 'lingyux910@163.com')
+regexTele = re.match('[1-9][0-9]{10}','08852057838')
+if regexTele:
+    print(regexTele.group())
+if regexMail:
+    print(regexMail.group())
+```
+
+- python字符串中\作为转义字符开头，比如\n表示换行，\t表示tab键，为了表示\本身，再加一个\，成为**\ \ **形式 在python中表示路径‘G:\py资料\1-上课资料\4-正则表达式课件\html’
+
+  ```python
+  path = 'G:\\py资料\\1-上课资料\\4-正则表达式课件\\html'
+  print(path)
+  ```
+
+- 匹配开头和结尾
+
+  | 符号 | 匹配规则       |
+  | ---- | -------------- |
+  | ^    | 匹配字符串开头 |
+  | $    | 匹配字符串结尾 |
+
+  ```python
+  # # ^ 匹配字符串的开头
+  # # res = re.match('^P.*','Python is a language')
+  res = re.match(r'^P\w{5}', 'Python is a language')
+  if res:
+      print(res.group())
+  
+  # $ 匹配结尾
+  res = re.match(r'[\w]{6,15}@[\w]{2,5}.com$', 'lingyux910@gmail.com')
+  if res:
+      print(res.group())
+      pass
+  ```
+
+
+- 分组匹配
+
+  | 符号      | 匹配规则                         |
+  | --------- | -------------------------------- |
+  | \|        | 匹配左右任意一个表达式           |
+  | (ab)      | 将括号中字符作为一个分组         |
+  | \num      | 引用分组num匹配到的字符串        |
+  | (?P)      | 分组起别名                       |
+  | (?P=name) | 引用别名为name分组匹配到的字符串 |
+
+  ```python
+  import re
+  # | 竖线 匹配左右任意一个表达式 实际上是一个或的关系
+  string = 'lingyux8888'
+  res = re.match('(lingyux8888|lingyux)', string)
+  print(res.group())
+  ```
+
+  ```python
+  # (a,b) 分组匹配 将括号中的字符作为一个分组
+  # 匹配电话号码 xxxx-1231241
+  res = re.match(r'([0-9]*)-(\d*)', '0355-123114155')
+  # ^ 有两种含义 1：以xxxx开头 2：否定 取反
+  res = re.match(r'([^-]*)-(\d*)', '0355-123114155')
+  print(res.group(0))
+  print(res.group(1))
+  print(res.group(2))
+  ```
+
+  ```python
+  # \num 的使用 引用分组num匹配到的字符串
+  htmlTag = '<html><h1>测试数据</h1></html>'
+  res = re.match(r'<(.+)><(.+)>(.+)</\2></\1>',  htmlTag)
+  print(res.group(1))
+  print(res.group(2))
+  print(res.group(3))
+  ```
+
+  ```python
+  # 分组别名的使用 (?P<name>)
+  # 使用别名：(?P=引用的名字)
+  data = '<div><h1>www.baidu.com</h1></div>'
+  res = re.match(r'<(?P<div>\w*)><(?P<h1>\w*)>(.*)</(?P=h1)></(?P=div)>', data)
+  
+  print(res.group(0))
+  print(res.group(1))
+  print(res.group(2))
+  print(res.group(3))
+  ```
+
   
 
+#### re.compile
 
+- compile 将正则表达式模式编译成一个正则表达式对象
+
+  - reg = re.compile(pattern) result = reg.match(string)
+
+  - 等效于 result = re.match(pattern, string)
+
+  - 使用re.compile()和保存所产生的正则表达式对象重用效率更高
+
+- 优点
+  - 在使用正则表达式进行**match**操作时，每次操作时**python**会将字符串转换为正则表达式对象，而如果使用则只需要完成一次转换即可，以后使用模式对象的时候，无需多次转换
+
+```python
+# compile re模块中的编译方法 可以把一个字符串编译成一个字节码
+import re
+reobj = re.compile(r'\d{4}')
+# 开始使用模式对象
+res = reobj.match('123124')
+print(res.group())
+# print(re.match(r'\d{4}', '123124').group())
+
+```
+
+#### re.search
+
+- search 在全文中匹配一次，匹配到就返回
+
+  - 语法：`re.search(pattern, string, flags=0)`
+
+  - 函数参数说明：
+
+    | 参数    | 描述                                                         |
+    | ------- | ------------------------------------------------------------ |
+    | pattern | 匹配的正则表达式                                             |
+    | string  | 要匹配的字符串。                                             |
+    | flags   | 标志位，用于控制正则表达式的匹配方式，如：是否区分大小写，多行匹配等等。 |
+
+```python
+# re.search 规则是：在全文中匹配一次，匹配到就返回
+data = '我爱伟大的祖国,I love China,China is a great country'
+res = re.search('China', data)
+print(res)
+print(res.group())
+print(data[15:20])
+```
+
+#### re.findall
+
+- **findall** 匹配所有返回一个列表，这个方法使用频率较高。
+
+  - 语法：`findall(string[, pos[, endpos]])`
+
+  - 参数说明：
+
+    | 参数   | 描述                                                 |
+    | ------ | ---------------------------------------------------- |
+    | string | 待匹配的字符串。                                     |
+    | pos    | 可选参数，指定字符串的起始位置，默认为 0。           |
+    | endpos | 可选参数，指定字符串的结束位置，默认为字符串的长度。 |
+
+  ```python
+  # re.findall() 查询字符串中的某个正则表达式全部的非重复出现的情况，返回的是一个复合正则表达式的结果列表
+  data = '毛主席是一位伟大的思想家,毛岸英是一位伟大的战士'
+  res = re.findall('毛..', data)
+  rsearch = re.search('毛..', data)
+  print(rsearch)
+  print(res)
+  
+  # 使用compile改造一下
+  reObj = re.compile('毛..')  # 创建一个正则表达式对象
+  print(reObj.search(data))
+  print(reObj.findall(data))
+  ```
+
+  
+
+#### re.sub
+
+- **sub** 将匹配到的数据进行替换
+
+  - 语法：`sub(pattern, repl, string, count=0, flags=0)`
+
+  - 参数说明
+
+    | 参数    | 描述                                                  |
+    | ------- | ----------------------------------------------------- |
+    | pattern | 正则中的模式字符串。                                  |
+    | repl    | 替换的字符串，也可为一个函数。                        |
+    | string  | 要被查找替换的原始字符串。                            |
+    | count   | 模式匹配后替换的最大次数，默认 0 表示替换所有的匹配。 |
+    | flags   | 标志位，用于控制正则表达式的匹配方式                  |
+
+  ```python
+  # re.sub 实现目标的搜索和替换
+  data = 'Python是很受欢迎的编程语言'
+  pattern = '[a-zA-Z]+' # 字符集的范围 + 表示前导字符出现一次以上
+  res = re.sub(pattern, 'C语言', data)
+  print(res)
+  ```
+
+  
+
+#### re.split
+
+- 根据匹配进行切割字符串，并返回一个列表
+
+  - 语法：`split(pattern, string, maxsplit=0, flags=0)`
+
+  - 参数说明
+
+    | 参数     | 描述                                                  |
+    | -------- | ----------------------------------------------------- |
+    | pattern  | 匹配的正则表达式                                      |
+    | string   | 要匹配的字符串。                                      |
+    | maxsplit | 分隔次数，maxsplit=1 分隔一次，默认为 0，不限制次数。 |
+    | flags    | 标志位，用于控制正则表达式的匹配方式                  |
+
+  
 
 ### 贪婪模式与非贪婪模式
+
+- **Python**里数量词默认是贪婪的,总是尝试匹配尽可能多的字符,非贪婪则相反，总是尝试匹配尽可能少的字符。
+- 在**"*","?","+","{m,n}"**后面加上？，使贪婪变成非贪婪.
+
+```python
+import re
+
+# 贪婪模式
+# 默认的匹配模式
+# 在满足条件的情况下，尽可能多的匹配数据
+res = re.match(r'\d{6,9}', '111222333')
+print(res.group())
+
+content = 'aacbacbc'
+pattern = re.compile(r'a.*b')
+result = pattern.search(content)
+print('贪婪模式%s' % result.group())
+
+content = 'aacbacbc'
+pattern = re.compile(r'a.*?b')  # 非贪婪模式匹配
+result = pattern.search(content)
+print('非贪婪模式%s' % result.group())
+
+# 非贪婪模式
+# 在满足条件的情况下尽可能少的匹配数据
+rs = re.match(r'\d{6,9}?', '111222333')
+print(rs.group())
+
+```
+
